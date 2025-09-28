@@ -11,6 +11,7 @@ import {
   Card,
   Heading,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { User } from "../types/User";
 
 interface UserTableProps {
@@ -20,9 +21,10 @@ interface UserTableProps {
 }
 
 const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
+  const { t } = useTranslation();
   const getImageSrc = (user: User) => {
     if (user.image) {
-      if (user.image.startsWith('http')) {
+      if (user.image.startsWith("http")) {
         return user.image;
       }
       return `http://localhost:5001/uploads/${user.image}`;
@@ -32,10 +34,10 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -44,11 +46,14 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -66,7 +71,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
     const icons = {
       Student: "🎓",
       Engineer: "👷",
-      Teacher: "👨‍🏫", 
+      Teacher: "👨‍🏫",
       Unemployed: "🔍",
     };
     return icons[occupation as keyof typeof icons] || "💼";
@@ -82,210 +87,227 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
   };
 
   return (
-    <Card.Root shadow="xl" borderRadius="2xl" overflow="hidden">
-      {/* Table Header */}
-      <Box bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" p={6}>
-        <Heading size="lg" color="white" textAlign="center">
-          📋 Users Table View
-        </Heading>
-      </Box>
-
-      <Box bg="white">
-        <Table.Root size="lg">
-          <Table.Header bg="gray.50" borderBottomWidth="2px" borderColor="gray.200">
-            <Table.Row>
-              <Table.ColumnHeader 
-                fontSize="sm" 
-                fontWeight="bold" 
-                color="gray.700" 
+    <Box
+      bg="white"
+      borderRadius="lg"
+      shadow="sm"
+      border="1px solid"
+      borderColor="gray.200"
+      overflow="hidden"
+    >
+      <Table.Root size="md">
+        <Table.Header bg="gray.50">
+          <Table.Row>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              borderRight="1px solid"
+              borderColor="gray.300"
+            >
+              {t("user.name")}
+            </Table.ColumnHeader>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              borderRight="1px solid"
+              borderColor="gray.300"
+            >
+              {t("user.gender")}
+            </Table.ColumnHeader>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              borderRight="1px solid"
+              borderColor="gray.300"
+            >
+              {t("user.birthday")}
+            </Table.ColumnHeader>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              borderRight="1px solid"
+              borderColor="gray.300"
+            >
+              {t("user.occupation")}
+            </Table.ColumnHeader>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              borderRight="1px solid"
+              borderColor="gray.300"
+            >
+              {t("user.phone")}
+            </Table.ColumnHeader>
+            <Table.ColumnHeader
+              fontSize="sm"
+              fontWeight="semibold"
+              color="gray.700"
+              py={3}
+              px={4}
+              textAlign="center"
+            >
+              {t("user.actions")}
+            </Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {users.map((user, index) => (
+            <Table.Row
+              key={user._id}
+              bg="white"
+              _hover={{
+                bg: "gray.50",
+                transform: "translateY(-1px)",
+                shadow: "sm",
+              }}
+              transition="all 0.2s ease"
+              borderBottom={index === users.length - 1 ? "none" : "1px solid"}
+              borderColor="gray.200"
+            >
+              <Table.Cell
                 py={4}
                 px={6}
-                textTransform="uppercase"
-                letterSpacing="wide"
+                borderRight="1px solid"
+                borderColor="gray.200"
               >
-                👤 User
-              </Table.ColumnHeader>
-              <Table.ColumnHeader 
-                fontSize="sm" 
-                fontWeight="bold" 
-                color="gray.700"
-                textTransform="uppercase"
-                letterSpacing="wide"
-              >
-                🎂 Age & Gender
-              </Table.ColumnHeader>
-              <Table.ColumnHeader 
-                fontSize="sm" 
-                fontWeight="bold" 
-                color="gray.700"
-                textTransform="uppercase"
-                letterSpacing="wide"
-              >
-                💼 Occupation
-              </Table.ColumnHeader>
-              <Table.ColumnHeader 
-                fontSize="sm" 
-                fontWeight="bold" 
-                color="gray.700"
-                textTransform="uppercase"
-                letterSpacing="wide"
-              >
-                📞 Contact
-              </Table.ColumnHeader>
-              <Table.ColumnHeader 
-                fontSize="sm" 
-                fontWeight="bold" 
-                color="gray.700"
-                textTransform="uppercase"
-                letterSpacing="wide"
-                textAlign="center"
-              >
-                ⚡ Actions
-              </Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {users.map((user, index) => (
-              <Table.Row
-                key={user._id}
-                _hover={{ 
-                  bg: "blue.50", 
-                  transform: "scale(1.01)",
-                  shadow: "md" 
-                }}
-                transition="all 0.2s"
-                borderBottomWidth={index === users.length - 1 ? 0 : "1px"}
-                borderColor="gray.100"
-              >
-                {/* User Info */}
-                <Table.Cell py={6} px={6}>
-                  <HStack gap={4}>
-                    <Box
-                      w="50px"
-                      h="50px"
-                      borderRadius="full"
-                      overflow="hidden"
-                      borderWidth="2px"
-                      borderColor="gray.200"
-                      shadow="md"
-                      bg="gray.100"
-                    >
-                      <Image
-                        src={getImageSrc(user)}
-                        alt={user.name}
-                        w="100%"
-                        h="100%"
-                        objectFit="cover"
-                        onError={(e) => {
-                          e.currentTarget.src = "/default-person.png";
-                        }}
-                      />
-                    </Box>
-                    <VStack align="start" gap={1}>
-                      <Text fontWeight="bold" color="gray.800" fontSize="md">
-                        {user.name}
-                      </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        Born {formatDate(user.birthday)}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                </Table.Cell>
+                <Text fontSize="sm" color="gray.800" fontWeight="semibold">
+                  {user.name}
+                </Text>
+              </Table.Cell>
 
-                {/* Age & Gender */}
-                <Table.Cell py={6}>
-                  <VStack align="start" gap={1}>
-                    <HStack gap={2}>
-                      <Text fontSize="lg">{getGenderIcon(user.gender)}</Text>
-                      <Text fontWeight="semibold" color="gray.700">
-                        {user.gender}
+              <Table.Cell
+                py={4}
+                px={4}
+                borderRight="1px solid"
+                borderColor="gray.200"
+              >
+                <HStack gap={2}>
+                  <Text fontSize="sm">{getGenderIcon(user.gender)}</Text>
+                  <Text fontSize="sm" color="gray.700" fontWeight="medium">
+                    {t(`gender.${user.gender.toLowerCase()}`)}
+                  </Text>
+                </HStack>
+              </Table.Cell>
+
+              <Table.Cell
+                py={4}
+                px={4}
+                borderRight="1px solid"
+                borderColor="gray.200"
+              >
+                <Text fontSize="sm" color="gray.700" fontWeight="medium">
+                  {formatDate(user.birthday)}
+                </Text>
+              </Table.Cell>
+
+              <Table.Cell
+                py={4}
+                px={4}
+                borderRight="1px solid"
+                borderColor="gray.200"
+              >
+                <Badge
+                  colorPalette={getOccupationColor(user.occupation)}
+                  size="sm"
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                  fontWeight="semibold"
+                  fontSize="xs"
+                >
+                  {getOccupationIcon(user.occupation)}{" "}
+                  {t(`occupation.${user.occupation.toLowerCase()}`)}
+                </Badge>
+              </Table.Cell>
+
+              <Table.Cell
+                py={4}
+                px={4}
+                borderRight="1px solid"
+                borderColor="gray.200"
+              >
+                <Text
+                  fontSize="sm"
+                  color="blue.600"
+                  fontFamily="mono"
+                  fontWeight="medium"
+                >
+                  {user.phone}
+                </Text>
+              </Table.Cell>
+
+              <Table.Cell py={4} px={4}>
+                <HStack gap={2} justify="center">
+                  <Button
+                    size="sm"
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    color="white"
+                    onClick={() => onEdit(user)}
+                    borderRadius="lg"
+                    px={3}
+                    _hover={{
+                      bg: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+                      transform: "translateY(-1px)",
+                      shadow: "md",
+                    }}
+                    _active={{ transform: "translateY(0)" }}
+                    transition="all 0.2s ease"
+                  >
+                    <HStack gap={1}>
+                      <Text fontSize="xs" fontWeight="bold">
+                        ✏️
+                      </Text>
+                      <Text fontSize="xs" fontWeight="semibold">
+                        {t("actions.edit")}
                       </Text>
                     </HStack>
-                    <Text fontSize="sm" color="gray.500">
-                      {getAge(user.birthday)} years old
-                    </Text>
-                  </VStack>
-                </Table.Cell>
-
-                {/* Occupation */}
-                <Table.Cell py={6}>
-                  <Badge
-                    colorPalette={getOccupationColor(user.occupation)}
-                    size="lg"
-                    px={4}
-                    py={2}
-                    borderRadius="full"
-                    fontWeight="semibold"
-                    fontSize="sm"
+                  </Button>
+                  <Button
+                    size="sm"
+                    bg="linear-gradient(135deg, #e53e3e 0%, #c53030 100%)"
+                    color="white"
+                    onClick={() => onDelete(user._id)}
+                    borderRadius="lg"
+                    px={3}
+                    _hover={{
+                      bg: "linear-gradient(135deg, #c53030 0%, #9c2626 100%)",
+                      transform: "translateY(-1px)",
+                      shadow: "md",
+                    }}
+                    _active={{ transform: "translateY(0)" }}
+                    transition="all 0.2s ease"
                   >
-                    {getOccupationIcon(user.occupation)} {user.occupation}
-                  </Badge>
-                </Table.Cell>
-
-                {/* Contact */}
-                <Table.Cell py={6}>
-                  <VStack align="start" gap={1}>
-                    <Text 
-                      fontFamily="mono" 
-                      fontSize="sm" 
-                      color="blue.600"
-                      fontWeight="semibold"
-                    >
-                      {user.phone}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      Phone Number
-                    </Text>
-                  </VStack>
-                </Table.Cell>
-
-                {/* Actions */}
-                <Table.Cell py={6}>
-                  <HStack gap={3} justify="center">
-                    <Button
-                      size="md"
-                      colorPalette="blue"
-                      variant="solid"
-                      onClick={() => onEdit(user)}
-                      borderRadius="lg"
-                      px={4}
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        shadow: "lg",
-                      }}
-                      transition="all 0.2s"
-                    >
-                      <HStack gap={1}>
-                        <Text>✏️</Text>
-                        <Text fontWeight="semibold">Edit</Text>
-                      </HStack>
-                    </Button>
-                    <Button
-                      size="md"
-                      colorPalette="red"
-                      variant="solid"
-                      onClick={() => onDelete(user._id)}
-                      borderRadius="lg"
-                      px={4}
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        shadow: "lg",
-                      }}
-                      transition="all 0.2s"
-                    >
-                      <HStack gap={1}>
-                        <Text>🗑️</Text>
-                        <Text fontWeight="semibold">Delete</Text>
-                      </HStack>
-                    </Button>
-                  </HStack>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-      </Box>
-    </Card.Root>
+                    <HStack gap={1}>
+                      <Text fontSize="xs" fontWeight="bold">
+                        🗑️
+                      </Text>
+                      <Text fontSize="xs" fontWeight="semibold">
+                        {t("actions.delete")}
+                      </Text>
+                    </HStack>
+                  </Button>
+                </HStack>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+    </Box>
   );
 };
 

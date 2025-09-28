@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  DialogRoot,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogBackdrop,
-  DialogPositioner,
   Button,
   Field,
   Input,
@@ -23,8 +14,9 @@ import {
   Flex,
   Badge,
   Separator,
-} from '@chakra-ui/react';
-import { User, UserFormData } from '../types/User';
+} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { User, UserFormData } from "../types/User";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -34,14 +26,21 @@ interface UserModalProps {
   title: string;
 }
 
-const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, title }) => {
+const UserModal: React.FC<UserModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  user,
+  title,
+}) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<UserFormData>({
-    name: '',
-    gender: 'Male',
-    birthday: '',
-    occupation: 'Student',
-    phone: '',
-    image: null
+    name: "",
+    gender: "Male",
+    birthday: "",
+    occupation: "Student",
+    phone: "",
+    image: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -53,15 +52,14 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, 
       setFormData({
         name: user.name,
         gender: user.gender,
-        birthday: user.birthday.split('T')[0],
+        birthday: user.birthday.split("T")[0],
         occupation: user.occupation,
         phone: user.phone,
-        image: null
+        image: null,
       });
-      
-      // Set image preview if user has an image
+
       if (user.image) {
-        if (user.image.startsWith('http')) {
+        if (user.image.startsWith("http")) {
           setImagePreview(user.image);
         } else {
           setImagePreview(`http://localhost:5001/uploads/${user.image}`);
@@ -69,52 +67,65 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, 
       }
     } else {
       setFormData({
-        name: '',
-        gender: 'Male',
-        birthday: '',
-        occupation: 'Student',
-        phone: '',
-        image: null
+        name: "",
+        gender: "Male",
+        birthday: "",
+        occupation: "Student",
+        phone: "",
+        image: null,
       });
       setImagePreview(null);
     }
     setErrors({});
   }, [user, isOpen]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [isOpen, onClose]);
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Name validation
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t("validation.nameRequired");
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = t("validation.nameMinLength");
     } else if (formData.name.trim().length > 50) {
-      newErrors.name = 'Name must be less than 50 characters';
+      newErrors.name = t("validation.nameMaxLength");
     } else if (!/^[a-zA-Z\s]+$/.test(formData.name.trim())) {
-      newErrors.name = 'Name can only contain letters and spaces';
+      newErrors.name = t("validation.nameLettersOnly");
     }
 
-    // Birthday validation
     if (!formData.birthday) {
-      newErrors.birthday = 'Birthday is required';
+      newErrors.birthday = t("validation.birthdayRequired");
     } else {
       const birthDate = new Date(formData.birthday);
       const today = new Date();
       const age = today.getFullYear() - birthDate.getFullYear();
-      
+
       if (age < 13 || age > 120) {
-        newErrors.birthday = 'Age must be between 13 and 120 years';
+        newErrors.birthday = t("validation.ageRange");
       }
     }
 
-    // Phone validation
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone is required';
+      newErrors.phone = t("validation.phoneRequired");
     } else if (!/^\+?[\d\s\-()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Invalid phone number format';
-    } else if (formData.phone.replace(/\D/g, '').length < 10 || formData.phone.replace(/\D/g, '').length > 15) {
-      newErrors.phone = 'Phone must be between 10 and 15 digits';
+      newErrors.phone = t("validation.phoneInvalid");
+    } else if (
+      formData.phone.replace(/\D/g, "").length < 10 ||
+      formData.phone.replace(/\D/g, "").length > 15
+    ) {
+      newErrors.phone = t("validation.phoneLength");
     }
 
     setErrors(newErrors);
@@ -127,39 +138,37 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, 
       setIsSubmitting(true);
       try {
         await onSubmit(formData);
-        // Don't show toast here - let parent component handle it
       } catch (error) {
-        // Error is handled by parent component
       } finally {
         setIsSubmitting(false);
       }
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image: file
+      image: file,
     }));
 
-    // Create preview
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -173,7 +182,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, 
     const icons = {
       Student: "🎓",
       Engineer: "👷",
-      Teacher: "👨‍🏫", 
+      Teacher: "👨‍🏫",
       Unemployed: "🔍",
     };
     return icons[occupation as keyof typeof icons] || "💼";
@@ -188,316 +197,400 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, user, 
     return icons[gender as keyof typeof icons] || "👤";
   };
 
+  if (!isOpen) return null;
+
   return (
-    <DialogRoot 
-      open={isOpen} 
-      onOpenChange={(e: { open: boolean }) => !e.open && onClose()} 
-      size="lg"
-      placement="center"
-      closeOnInteractOutside={false}
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      zIndex={1000}
+      bg="blackAlpha.600"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={4}
     >
-      <DialogBackdrop bg="blackAlpha.600" backdropFilter="blur(4px)" />
-      <DialogPositioner>
-        <DialogContent 
-          mx={4} 
-          bg="white" 
-          shadow="2xl" 
-          borderRadius="2xl"
-          borderWidth="1px"
-          borderColor="gray.200"
-          maxH="90vh"
-          overflowY="auto"
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        onClick={onClose}
+        cursor="pointer"
+      />
+
+      <Box
+        position="relative"
+        bg="white"
+        shadow="2xl"
+        borderRadius="2xl"
+        borderWidth="1px"
+        borderColor="gray.200"
+        maxH="90vh"
+        overflowY="auto"
+        w="full"
+        maxW="2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Box
+          bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+          color="white"
+          p={6}
+          borderTopRadius="2xl"
         >
-          {/* Modern Header */}
-          <Box
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            color="white"
-            p={6}
-            borderTopRadius="2xl"
-          >
-            <DialogHeader p={0}>
-              <HStack justify="space-between" align="center">
-                <HStack gap={3}>
-                  <Text fontSize="2xl">
-                    {user ? "✏️" : "👤"}
-                  </Text>
-                  <DialogTitle fontSize="xl" fontWeight="bold">
-                    {title}
-                  </DialogTitle>
-                </HStack>
-                <DialogCloseTrigger 
-                  color="white" 
-                  _hover={{ bg: "whiteAlpha.200" }}
-                  borderRadius="lg"
-                />
+          <Box p={0}>
+            <HStack justify="space-between" align="center">
+              <HStack gap={3}>
+                <Text fontSize="xl" fontWeight="bold">
+                  {title}
+                </Text>
               </HStack>
-            </DialogHeader>
+              <Button
+                onClick={onClose}
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.200" }}
+                borderRadius="lg"
+                size="sm"
+              >
+                ✕
+              </Button>
+            </HStack>
           </Box>
-          
-          <form onSubmit={handleSubmit}>
-            <DialogBody p={8}>
-              <VStack gap={8} align="stretch">
-                {/* Image Preview Section */}
-                <Card.Root bg="gray.50" p={6} borderRadius="xl">
-                  <VStack gap={4}>
-                    <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                      📷 Profile Picture
-                    </Text>
-                    
-                    <Box
-                      w="80px"
-                      h="80px"
-                      borderRadius="full"
-                      overflow="hidden"
-                      borderWidth="4px"
-                      borderColor="white"
-                      shadow="lg"
-                      bg="gray.100"
-                    >
-                      <Image
-                        src={imagePreview || "/default-person.png"}
-                        alt={formData.name || "User"}
-                        w="100%"
-                        h="100%"
-                        objectFit="cover"
-                        onError={(e) => {
-                          e.currentTarget.src = "/default-person.png";
-                        }}
-                      />
-                    </Box>
-                    
-                    <Field.Root>
-                      <Input
-                        type="file"
-                        name="image"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        p={2}
-                        borderRadius="lg"
-                        bg="white"
-                        borderWidth="2px"
-                        borderStyle="dashed"
-                        borderColor="gray.300"
-                        _hover={{ borderColor: "blue.400" }}
-                        _focus={{ borderColor: "blue.500" }}
-                      />
-                      <Field.HelperText textAlign="center" fontSize="sm">
-                        Upload JPG, PNG, or GIF (max 5MB)
-                      </Field.HelperText>
-                    </Field.Root>
-                  </VStack>
-                </Card.Root>
+        </Box>
 
-                <Separator />
+        <form onSubmit={handleSubmit}>
+          <Box p={8}>
+            <VStack gap={8} align="stretch">
+              <Card.Root bg="gray.50" p={6} borderRadius="xl">
+                <VStack gap={4}>
+                  <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                    📷 {t("modal.profilePicture")}
+                  </Text>
 
-                {/* Form Fields */}
-                <VStack gap={6} align="stretch">
-                  {/* Name Field */}
-                  <Field.Root required invalid={!!errors.name}>
-                    <Field.Label fontSize="md" fontWeight="semibold" color="gray.700">
-                      <HStack gap={2}>
-                        <Text>✨</Text>
-                        <Text>Full Name</Text>
-                      </HStack>
-                    </Field.Label>
-                    <Input
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="👤 Enter full name"
-                      size="lg"
-                      borderRadius="xl"
-                      bg="gray.50"
-                      _focus={{ bg: "white", borderColor: "blue.400" }}
+                  <Box
+                    w="80px"
+                    h="80px"
+                    borderRadius="full"
+                    overflow="hidden"
+                    borderWidth="4px"
+                    borderColor="white"
+                    shadow="lg"
+                    bg="gray.100"
+                  >
+                    <Image
+                      src={imagePreview || "/default-person.png"}
+                      alt={formData.name || "User"}
+                      w="100%"
+                      h="100%"
+                      objectFit="cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/default-person.png";
+                      }}
                     />
-                    {errors.name && <Field.ErrorText color="red.500">{errors.name}</Field.ErrorText>}
+                  </Box>
+
+                  <Field.Root>
+                    <Input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      p={2}
+                      borderRadius="lg"
+                      bg="white"
+                      borderWidth="2px"
+                      borderStyle="dashed"
+                      borderColor="gray.300"
+                      _hover={{ borderColor: "blue.400" }}
+                      _focus={{ borderColor: "blue.500" }}
+                    />
+                    <Text fontSize="sm" color="gray.500" textAlign="center">
+                      {t("modal.uploadHelp")}
+                    </Text>
                   </Field.Root>
+                </VStack>
+              </Card.Root>
 
-                  {/* Gender and Birthday Row */}
-                  <HStack gap={6} align="start">
-                    <Field.Root flex={1} required>
-                      <Field.Label fontSize="md" fontWeight="semibold" color="gray.700">
-                        <HStack gap={2}>
-                          <Text>{getGenderIcon(formData.gender)}</Text>
-                          <Text>Gender</Text>
-                        </HStack>
-                      </Field.Label>
-                      <NativeSelectRoot size="lg">
-                        <NativeSelectField
-                          name="gender"
-                          value={formData.gender}
-                          onChange={handleInputChange}
-                          borderRadius="xl"
-                          bg="gray.50"
-                          _focus={{ bg: "white", borderColor: "blue.400" }}
-                        >
-                          <option value="Male">👨 Male</option>
-                          <option value="Female">👩 Female</option>
-                          <option value="Other">🧑 Other</option>
-                        </NativeSelectField>
-                      </NativeSelectRoot>
-                    </Field.Root>
+              <Separator />
 
-                    <Field.Root flex={1} required invalid={!!errors.birthday}>
-                      <Field.Label fontSize="md" fontWeight="semibold" color="gray.700">
-                        <HStack gap={2}>
-                          <Text>🎂</Text>
-                          <Text>Birthday</Text>
-                        </HStack>
-                      </Field.Label>
-                      <Input
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleInputChange}
-                        size="lg"
-                        borderRadius="xl"
-                        bg="gray.50"
-                        _focus={{ bg: "white", borderColor: "blue.400" }}
-                      />
-                      {errors.birthday && <Field.ErrorText color="red.500">{errors.birthday}</Field.ErrorText>}
-                    </Field.Root>
-                  </HStack>
+              <VStack gap={6} align="stretch">
+                <Field.Root required invalid={!!errors.name}>
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    <HStack gap={2}>
+                      <Text>{t("user.name")}</Text>
+                    </HStack>
+                  </Text>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder={`👤 ${t("user.name")}`}
+                    size="lg"
+                    borderRadius="xl"
+                    bg="gray.50"
+                    _focus={{ bg: "white", borderColor: "blue.400" }}
+                  />
+                  {errors.name && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {errors.name}
+                    </Text>
+                  )}
+                </Field.Root>
 
-                  {/* Occupation Field */}
-                  <Field.Root required>
-                    <Field.Label fontSize="md" fontWeight="semibold" color="gray.700">
+                <HStack gap={6} align="start">
+                  <Field.Root flex={1} required>
+                    <Text
+                      fontSize="md"
+                      fontWeight="semibold"
+                      color="gray.700"
+                      mb={2}
+                    >
                       <HStack gap={2}>
-                        <Text>{getOccupationIcon(formData.occupation)}</Text>
-                        <Text>Occupation</Text>
+                        <Text>{t("user.gender")}</Text>
                       </HStack>
-                    </Field.Label>
+                    </Text>
                     <NativeSelectRoot size="lg">
                       <NativeSelectField
-                        name="occupation"
-                        value={formData.occupation}
+                        name="gender"
+                        value={formData.gender}
                         onChange={handleInputChange}
                         borderRadius="xl"
                         bg="gray.50"
                         _focus={{ bg: "white", borderColor: "blue.400" }}
                       >
-                        <option value="Student">🎓 Student</option>
-                        <option value="Engineer">👷 Engineer</option>
-                        <option value="Teacher">👨‍🏫 Teacher</option>
-                        <option value="Unemployed">🔍 Unemployed</option>
+                        <option value="Male">👨 {t("gender.male")}</option>
+                        <option value="Female">👩 {t("gender.female")}</option>
+                        <option value="Other">🧑 {t("gender.other")}</option>
                       </NativeSelectField>
                     </NativeSelectRoot>
                   </Field.Root>
 
-                  {/* Phone Field */}
-                  <Field.Root required invalid={!!errors.phone}>
-                    <Field.Label fontSize="md" fontWeight="semibold" color="gray.700">
+                  <Field.Root flex={1} required invalid={!!errors.birthday}>
+                    <Text
+                      fontSize="md"
+                      fontWeight="semibold"
+                      color="gray.700"
+                      mb={2}
+                    >
                       <HStack gap={2}>
-                        <Text>📞</Text>
-                        <Text>Phone Number</Text>
+                        <Text>{t("user.birthday")}</Text>
                       </HStack>
-                    </Field.Label>
+                    </Text>
                     <Input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
+                      type="date"
+                      name="birthday"
+                      value={formData.birthday}
                       onChange={handleInputChange}
-                      placeholder="📱 Enter phone number"
                       size="lg"
                       borderRadius="xl"
                       bg="gray.50"
                       _focus={{ bg: "white", borderColor: "blue.400" }}
-                      fontFamily="mono"
                     />
-                    {errors.phone && <Field.ErrorText color="red.500">{errors.phone}</Field.ErrorText>}
-                    <Field.HelperText fontSize="sm">
-                      Example: +1234567890 or (123) 456-7890
-                    </Field.HelperText>
+                    {errors.birthday && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {errors.birthday}
+                      </Text>
+                    )}
                   </Field.Root>
-                </VStack>
+                </HStack>
 
-                {/* Preview Card */}
-                {formData.name && (
-                  <>
-                    <Separator />
-                    <Card.Root bg="blue.50" borderColor="blue.200" borderWidth={1}>
-                      <Card.Body p={6}>
-                        <VStack gap={4}>
-                          <Text fontSize="lg" fontWeight="semibold" color="blue.700">
-                            📋 Preview
-                          </Text>
-                          <HStack gap={6} w="100%" align="center">
-                            <Box
-                              w="50px"
-                              h="50px"
-                              borderRadius="full"
-                              overflow="hidden"
-                              bg="gray.100"
-                            >
-                              <Image
-                                src={imagePreview || "/default-person.png"}
-                                alt={formData.name}
-                                w="100%"
-                                h="100%"
-                                objectFit="cover"
-                                onError={(e) => {
-                                  e.currentTarget.src = "/default-person.png";
-                                }}
-                              />
-                            </Box>
-                            <VStack align="start" flex={1}>
-                              <Text fontWeight="bold" fontSize="lg" color="gray.800">
-                                {formData.name || "Name"}
-                              </Text>
-                              <HStack gap={4} wrap="wrap">
-                                <Badge colorPalette="blue" px={3} py={1}>
-                                  {getGenderIcon(formData.gender)} {formData.gender}
-                                </Badge>
-                                <Badge colorPalette="green" px={3} py={1}>
-                                  {getOccupationIcon(formData.occupation)} {formData.occupation}
-                                </Badge>
-                              </HStack>
-                              {formData.phone && (
-                                <Text fontSize="sm" color="gray.600" fontFamily="mono">
-                                  📞 {formData.phone}
-                                </Text>
-                              )}
-                            </VStack>
-                          </HStack>
-                        </VStack>
-                      </Card.Body>
-                    </Card.Root>
-                  </>
-                )}
+                <Field.Root required>
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    <HStack gap={2}>
+                      <Text>{t("user.occupation")}</Text>
+                    </HStack>
+                  </Text>
+                  <NativeSelectRoot size="lg">
+                    <NativeSelectField
+                      name="occupation"
+                      value={formData.occupation}
+                      onChange={handleInputChange}
+                      borderRadius="xl"
+                      bg="gray.50"
+                      _focus={{ bg: "white", borderColor: "blue.400" }}
+                    >
+                      <option value="Student">
+                        🎓 {t("occupation.student")}
+                      </option>
+                      <option value="Engineer">
+                        👷 {t("occupation.engineer")}
+                      </option>
+                      <option value="Teacher">
+                        👨‍🏫 {t("occupation.teacher")}
+                      </option>
+                      <option value="Unemployed">
+                        🔍 {t("occupation.unemployed")}
+                      </option>
+                    </NativeSelectField>
+                  </NativeSelectRoot>
+                </Field.Root>
+
+                {/* Phone Field */}
+                <Field.Root required invalid={!!errors.phone}>
+                  <Text
+                    fontSize="md"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    <HStack gap={2}>
+                      <Text>{t("user.phone")}</Text>
+                    </HStack>
+                  </Text>
+                  <Input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder={`📱 ${t("user.phone")}`}
+                    size="lg"
+                    borderRadius="xl"
+                    bg="gray.50"
+                    _focus={{ bg: "white", borderColor: "blue.400" }}
+                    fontFamily="mono"
+                  />
+                  {errors.phone && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {errors.phone}
+                    </Text>
+                  )}
+                  <Text fontSize="sm" color="gray.500" mt={1}>
+                    {t("modal.phoneExample")}
+                  </Text>
+                </Field.Root>
               </VStack>
-            </DialogBody>
 
-            <DialogFooter p={8} pt={0}>
-              <Flex w="100%" gap={4}>
-                <Button 
-                  variant="ghost" 
-                  onClick={onClose} 
-                  disabled={isSubmitting}
-                  flex={1}
-                  size="lg"
-                  borderRadius="xl"
-                >
-                  ❌ Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  colorPalette="blue"
-                  loading={isSubmitting}
-                  loadingText={user ? 'Updating...' : 'Creating...'}
-                  flex={2}
-                  size="lg"
-                  borderRadius="xl"
-                  fontWeight="bold"
-                  shadow="lg"
-                >
-                  {user ? '✏️ Update User' : '👤 Create User'}
-                </Button>
-              </Flex>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </DialogPositioner>
-    </DialogRoot>
+              {/* Preview Card */}
+              {formData.name && (
+                <>
+                  <Separator />
+                  <Card.Root
+                    bg="blue.50"
+                    borderColor="blue.200"
+                    borderWidth={1}
+                  >
+                    <Card.Body p={6}>
+                      <VStack gap={4}>
+                        <Text
+                          fontSize="lg"
+                          fontWeight="semibold"
+                          color="blue.700"
+                        >
+                          📋 {t("modal.preview")}
+                        </Text>
+                        <HStack gap={6} w="100%" align="center">
+                          <Box
+                            w="50px"
+                            h="50px"
+                            borderRadius="full"
+                            overflow="hidden"
+                            bg="gray.100"
+                          >
+                            <Image
+                              src={imagePreview || "/default-person.png"}
+                              alt={formData.name}
+                              w="100%"
+                              h="100%"
+                              objectFit="cover"
+                              onError={(e) => {
+                                e.currentTarget.src = "/default-person.png";
+                              }}
+                            />
+                          </Box>
+                          <VStack align="start" flex={1}>
+                            <Text
+                              fontWeight="bold"
+                              fontSize="lg"
+                              color="gray.800"
+                            >
+                              {formData.name || "Name"}
+                            </Text>
+                            <HStack gap={4} wrap="wrap">
+                              <Badge colorPalette="blue" px={3} py={1}>
+                                {getGenderIcon(formData.gender)}{" "}
+                                {t(`gender.${formData.gender.toLowerCase()}`)}
+                              </Badge>
+                              <Badge colorPalette="green" px={3} py={1}>
+                                {getOccupationIcon(formData.occupation)}{" "}
+                                {t(
+                                  `occupation.${formData.occupation.toLowerCase()}`
+                                )}
+                              </Badge>
+                            </HStack>
+                            {formData.phone && (
+                              <Text
+                                fontSize="sm"
+                                color="gray.600"
+                                fontFamily="mono"
+                              >
+                                📞 {formData.phone}
+                              </Text>
+                            )}
+                          </VStack>
+                        </HStack>
+                      </VStack>
+                    </Card.Body>
+                  </Card.Root>
+                </>
+              )}
+            </VStack>
+          </Box>
+
+          <Box p={8} pt={0}>
+            <Flex w="100%" gap={4}>
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                disabled={isSubmitting}
+                flex={1}
+                size="lg"
+                borderRadius="xl"
+              >
+                ❌ {t("actions.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
+                loading={isSubmitting}
+                loadingText={
+                  user
+                    ? t("actions.update") + "..."
+                    : t("actions.create") + "..."
+                }
+                flex={2}
+                size="lg"
+                borderRadius="xl"
+                fontWeight="bold"
+                shadow="lg"
+                _hover={{
+                  bg: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+                }}
+              >
+                {user
+                  ? `✏️ ${t("modal.updateUser")}`
+                  : `👤 ${t("modal.createUser")}`}
+              </Button>
+            </Flex>
+          </Box>
+        </form>
+      </Box>
+    </Box>
   );
 };
 

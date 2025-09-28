@@ -5,10 +5,9 @@ import {
   Text,
   IconButton,
   VStack,
-  Flex,
-  Badge,
   Box,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -21,6 +20,7 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
+  const { t } = useTranslation();
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -40,252 +40,76 @@ const Pagination: React.FC<PaginationProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <VStack gap={4} align="center" py={6}>
-      {/* Modern Page Info */}
-      <Box
-        bg="white"
-        borderRadius="xl"
-        p={4}
-        shadow="sm"
-        border="1px solid"
-        borderColor="gray.200"
-      >
-        <HStack gap={4} align="center">
+    <Box p={4} w="fit-content" mx="auto">
+      <HStack gap={8} align="center" justify="space-between" minW="400px">
+        <HStack gap={1} align="center">
+          <Text
+            fontSize="md"
+            color={currentPage === 1 ? "gray.400" : "#667eea"}
+            cursor={currentPage === 1 ? "not-allowed" : "pointer"}
+            onClick={
+              currentPage === 1
+                ? undefined
+                : () => onPageChange(currentPage - 1)
+            }
+            _hover={currentPage === 1 ? {} : { color: "#764ba2" }}
+            transition="color 0.2s ease"
+          >
+            ‹
+          </Text>
           <Text
             fontSize="sm"
-            color="gray.600"
-            fontWeight="semibold"
-            textTransform="uppercase"
-            letterSpacing="wide"
+            color={currentPage === 1 ? "gray.400" : "#667eea"}
+            cursor={currentPage === 1 ? "not-allowed" : "pointer"}
+            onClick={
+              currentPage === 1
+                ? undefined
+                : () => onPageChange(currentPage - 1)
+            }
+            _hover={currentPage === 1 ? {} : { color: "#764ba2" }}
+            transition="color 0.2s ease"
           >
-            Page Navigation
+            {t("pagination.previous")}
           </Text>
-          <Box
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            color="white"
-            px={4}
-            py={2}
-            borderRadius="lg"
-            fontWeight="bold"
+        </HStack>
+
+        <Text fontSize="sm" fontWeight="bold" color="gray.800">
+          {t("pagination.page")} {currentPage}, {t("pagination.total")}{" "}
+          {totalPages} {t("pagination.page")}
+        </Text>
+
+        <HStack gap={1} align="center">
+          <Text
             fontSize="sm"
-            shadow="sm"
+            color={currentPage === totalPages ? "gray.400" : "#667eea"}
+            cursor={currentPage === totalPages ? "not-allowed" : "pointer"}
+            onClick={
+              currentPage === totalPages
+                ? undefined
+                : () => onPageChange(currentPage + 1)
+            }
+            _hover={currentPage === totalPages ? {} : { color: "#764ba2" }}
+            transition="color 0.2s ease"
           >
-            {currentPage} of {totalPages}
-          </Box>
+            {t("pagination.next")}
+          </Text>
+          <Text
+            fontSize="md"
+            color={currentPage === totalPages ? "gray.400" : "#667eea"}
+            cursor={currentPage === totalPages ? "not-allowed" : "pointer"}
+            onClick={
+              currentPage === totalPages
+                ? undefined
+                : () => onPageChange(currentPage + 1)
+            }
+            _hover={currentPage === totalPages ? {} : { color: "#764ba2" }}
+            transition="color 0.2s ease"
+          >
+            ›
+          </Text>
         </HStack>
-      </Box>
-
-      {/* Modern Navigation Buttons */}
-      <Box
-        bg="white"
-        borderRadius="xl"
-        p={3}
-        shadow="sm"
-        border="1px solid"
-        borderColor="gray.200"
-      >
-        <HStack gap={2} justify="center" wrap="wrap">
-          {/* Previous Button */}
-          <IconButton
-            aria-label="Previous page"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            variant="outline"
-            bg="white"
-            borderColor="gray.300"
-            borderRadius="lg"
-            size="md"
-            w="44px"
-            h="44px"
-            _hover={{
-              bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "white",
-              transform: "translateY(-2px)",
-              shadow: "lg",
-              borderColor: "transparent",
-            }}
-            _active={{
-              transform: "translateY(0px)",
-              shadow: "md",
-            }}
-            _disabled={{
-              opacity: 0.3,
-              cursor: "not-allowed",
-              _hover: {
-                transform: "none",
-                shadow: "none",
-                bg: "white",
-                color: "gray.500",
-                borderColor: "gray.300",
-              },
-            }}
-            transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-          >
-            <Text fontSize="md" fontWeight="bold">
-              ‹
-            </Text>
-          </IconButton>
-
-          {/* First page + ellipsis */}
-          {currentPage > 3 && (
-            <>
-              <Button
-                onClick={() => onPageChange(1)}
-                variant="outline"
-                bg="white"
-                borderColor="gray.300"
-                borderRadius="lg"
-                size="md"
-                w="40px"
-                h="40px"
-                _hover={{
-                  bg: "blue.50",
-                  borderColor: "blue.400",
-                  transform: "translateY(-1px)",
-                  shadow: "md",
-                }}
-                _active={{
-                  transform: "translateY(0px)",
-                }}
-                transition="all 0.2s"
-                fontWeight="bold"
-                fontSize="sm"
-              >
-                1
-              </Button>
-              {currentPage > 4 && (
-                <Text color="gray.400" px={2} fontSize="lg" fontWeight="bold">
-                  •••
-                </Text>
-              )}
-            </>
-          )}
-
-          {/* Page Number Buttons */}
-          {getPageNumbers().map((pageNumber) => (
-            <Button
-              key={pageNumber}
-              onClick={() => onPageChange(pageNumber)}
-              variant={currentPage === pageNumber ? "solid" : "outline"}
-              bg={
-                currentPage === pageNumber
-                  ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                  : "white"
-              }
-              color={currentPage === pageNumber ? "white" : "gray.700"}
-              borderColor={
-                currentPage === pageNumber ? "transparent" : "gray.300"
-              }
-              borderRadius="lg"
-              size="md"
-              w="44px"
-              h="44px"
-              _hover={
-                currentPage === pageNumber
-                  ? {
-                      bg: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
-                      transform: "translateY(-2px)",
-                      shadow: "lg",
-                    }
-                  : {
-                      bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                      color: "white",
-                      borderColor: "transparent",
-                      transform: "translateY(-2px)",
-                      shadow: "lg",
-                    }
-              }
-              _active={{
-                transform: "translateY(0px)",
-                shadow: "md",
-              }}
-              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-              fontWeight="bold"
-              fontSize="md"
-              shadow={currentPage === pageNumber ? "md" : "none"}
-            >
-              {pageNumber}
-            </Button>
-          ))}
-
-          {/* Last page + ellipsis */}
-          {currentPage < totalPages - 2 && (
-            <>
-              {currentPage < totalPages - 3 && (
-                <Text color="gray.400" px={2} fontSize="lg" fontWeight="bold">
-                  •••
-                </Text>
-              )}
-              <Button
-                onClick={() => onPageChange(totalPages)}
-                variant="outline"
-                bg="white"
-                borderColor="gray.300"
-                borderRadius="lg"
-                size="md"
-                w="40px"
-                h="40px"
-                _hover={{
-                  bg: "blue.50",
-                  borderColor: "blue.400",
-                  transform: "translateY(-1px)",
-                  shadow: "md",
-                }}
-                _active={{
-                  transform: "translateY(0px)",
-                }}
-                transition="all 0.2s"
-                fontWeight="bold"
-                fontSize="sm"
-              >
-                {totalPages}
-              </Button>
-            </>
-          )}
-
-          {/* Next Button */}
-          <IconButton
-            aria-label="Next page"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            variant="outline"
-            bg="white"
-            borderColor="gray.300"
-            borderRadius="lg"
-            size="md"
-            w="44px"
-            h="44px"
-            _hover={{
-              bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "white",
-              transform: "translateY(-2px)",
-              shadow: "lg",
-              borderColor: "transparent",
-            }}
-            _active={{
-              transform: "translateY(0px)",
-              shadow: "md",
-            }}
-            _disabled={{
-              opacity: 0.3,
-              cursor: "not-allowed",
-              _hover: {
-                transform: "none",
-                shadow: "none",
-                bg: "white",
-                color: "gray.500",
-                borderColor: "gray.300",
-              },
-            }}
-            transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-          >
-            <Text fontSize="md" fontWeight="bold">
-              ›
-            </Text>
-          </IconButton>
-        </HStack>
-      </Box>
-    </VStack>
+      </HStack>
+    </Box>
   );
 };
 

@@ -1,0 +1,110 @@
+{
+  "app": {
+    "title": "用戶管理",
+    "subtitle": "儀表板",
+    "description": "具有現代設計、實時搜索和企業功能的專業用戶管理系統"
+  },
+  "navigation": {
+    "addUser": "新增用戶",
+    "language": "語言"
+  },
+  "stats": {
+    "totalUsers": "總用戶數",
+    "currentPage": "頁面",
+    "searchActive": "搜索狀態",
+    "on": "開啟",
+    "off": "關閉"
+  },
+  "search": {
+    "title": "搜索用戶",
+    "placeholder": "按姓名、職業或電話號碼搜索...",
+    "viewMode": "視圖模式",
+    "gridView": "網格視圖",
+    "tableView": "表格視圖"
+  },
+  "user": {
+    "name": "姓名",
+    "gender": "性別",
+    "birthday": "生日",
+    "age": "年齡",
+    "occupation": "職業",
+    "phone": "電話號碼",
+    "image": "個人頭像",
+    "actions": "操作",
+    "contact": "聯絡方式",
+    "yearsOld": "歲",
+    "born": "出生於"
+  },
+  "gender": {
+    "male": "男性",
+    "female": "女性",
+    "other": "其他"
+  },
+  "occupation": {
+    "student": "學生",
+    "engineer": "工程師",
+    "teacher": "教師",
+    "unemployed": "待業"
+  },
+  "actions": {
+    "edit": "編輯",
+    "delete": "刪除",
+    "save": "保存",
+    "cancel": "取消",
+    "create": "創建",
+    "update": "更新"
+  },
+  "modal": {
+    "addUser": "新增用戶",
+    "editUser": "編輯用戶",
+    "profilePicture": "個人頭像",
+    "uploadHelp": "上傳 JPG、PNG 或 GIF (最大 5MB)",
+    "preview": "預覽",
+    "phoneExample": "例如：+1234567890 或 (123) 456-7890",
+    "createUser": "創建用戶",
+    "updateUser": "更新用戶"
+  },
+  "validation": {
+    "nameRequired": "姓名為必填項",
+    "nameMinLength": "姓名至少需要2個字符",
+    "nameMaxLength": "姓名不能超過50個字符",
+    "nameLettersOnly": "姓名只能包含字母和空格",
+    "birthdayRequired": "生日為必填項",
+    "ageRange": "年齡必須在13到120歲之間",
+    "phoneRequired": "電話號碼為必填項",
+    "phoneInvalid": "電話號碼格式無效",
+    "phoneLength": "電話號碼長度必須在10到15位數字之間"
+  },
+  "messages": {
+    "success": "成功",
+    "error": "錯誤",
+    "userCreated": "用戶創建成功！",
+    "userUpdated": "用戶更新成功！",
+    "userDeleted": "用戶刪除成功！",
+    "createFailed": "創建用戶失敗",
+    "updateFailed": "更新用戶失敗",
+    "deleteFailed": "刪除用戶失敗",
+    "deleteConfirm": "您確定要刪除此用戶嗎？",
+    "loadingUsers": "正在加載用戶...",
+    "pleaseWait": "請稍候，我們正在獲取您的數據",
+    "noUsers": "暫無用戶",
+    "noMatchingUsers": "找不到匹配的用戶",
+    "noUsersDescription": "開始添加您的第一個用戶到系統中。",
+    "noMatchingDescription": "請嘗試調整您的搜索詞或清除搜索以查看所有用戶。",
+    "addFirstUser": "添加您的第一個用戶"
+  },
+  "table": {
+    "usersTableView": "用戶表格視圖",
+    "user": "用戶",
+    "ageAndGender": "年齡與性別",
+    "phoneNumber": "電話號碼"
+  },
+  "pagination": {
+    "pageNavigation": "頁面導航",
+    "of": "共",
+    "page": "頁",
+    "total": "共",
+    "previous": "上一頁",
+    "next": "下一頁"
+  }
+}
