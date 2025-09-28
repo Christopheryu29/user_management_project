@@ -14,7 +14,6 @@ import {
   securityHeaders,
 } from "./middleware/security";
 import { sanitizeInput } from "./middleware/validation";
-import redisClient from "./config/redis";
 import { specs } from "./config/swagger";
 import userRoutes from "./routes/userRoutes";
 
@@ -120,13 +119,6 @@ mongoose
       }`
     );
 
-    // Initialize Redis connection
-    const redisConnected = await redisClient.connect();
-    if (redisConnected) {
-      logger.info("✅ Redis connected successfully");
-    } else {
-      logger.warn("⚠️ Redis connection failed - caching disabled");
-    }
   })
   .catch((error) => {
     logger.error("❌ MongoDB connection error:", error);
@@ -184,9 +176,6 @@ app.get("/api/health", async (req, res) => {
           mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
         database: mongoose.connection.db?.databaseName,
       },
-      redis: {
-        status: redisClient.getStatus() ? "Connected" : "Disconnected",
-      },
     },
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
@@ -243,10 +232,6 @@ const gracefulShutdown = async (signal: string) => {
   // Close MongoDB connection
   await mongoose.connection.close();
   logger.info("MongoDB connection closed");
-
-  // Close Redis connection
-  await redisClient.disconnect();
-  logger.info("Redis connection closed");
 
   process.exit(0);
 };

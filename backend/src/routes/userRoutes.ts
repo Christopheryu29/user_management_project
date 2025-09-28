@@ -7,7 +7,6 @@ import cloudinary from "../config/cloudinary";
 import logger from "../utils/logger";
 import { validateUser, handleValidationErrors } from "../middleware/validation";
 import { strictLimiter } from "../middleware/security";
-import { cacheMiddleware, invalidateCache } from "../middleware/cache";
 
 const router = express.Router();
 
@@ -92,7 +91,7 @@ const upload = multer({
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/", cacheMiddleware(300), async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 6;
@@ -229,7 +228,6 @@ router.post(
   upload.single("image"),
   validateUser,
   handleValidationErrors,
-  invalidateCache("*"),
   async (req: Request, res: Response) => {
     try {
       const { name, gender, birthday, occupation, phone } = req.body;
@@ -393,7 +391,6 @@ router.put(
   upload.single("image"),
   validateUser,
   handleValidationErrors,
-  invalidateCache("*"),
   async (req: Request, res: Response) => {
     try {
       const { name, gender, birthday, occupation, phone } = req.body;
@@ -477,7 +474,6 @@ router.put(
 // DELETE /api/users/:id - Delete user
 router.delete(
   "/:id",
-  invalidateCache("*"),
   async (req: Request, res: Response) => {
     try {
       logger.info(`Delete request for user ID: ${req.params.id}`, {
